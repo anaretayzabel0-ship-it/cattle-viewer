@@ -61,24 +61,40 @@ export default function App() {
   const lotTimeTrackers = useRef({});
   const lastActiveLot = useRef(null);
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    let id = params.get('id');
-    
-    if (!id) {
-      const pathParts = window.location.pathname.split('/');
-      id = pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2];
-    }
+ useEffect(() => {
+  async function loadCatalog() {
+    try {
+      // 1. Check the browser link for an ?id= parameter
+      const searchParams = new URLSearchParams(window.location.search);
+      let id = searchParams.get('id');
 
-    if (!id || id === 'index.html' || id === '') {
-      id = "gTes4U"; 
-    }
+      // 2. If no ID is found in the link, automatically default to "gTes4U"
+      if (!id || id === 'index.html' || id === '') {
+        id = "gTes4U";
+      }
 
-    setCatalogId(id);
-    loadCatalogData(id);
-    fetchGeoIP();
-    loadWatchlist();
-  }, []);
+      // 3. Fetch the JSON data from your public/sale/ folder
+      const response = await fetch(`/sale/${id}.json`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch catalog data for ID: ${id}`);
+      }
+      
+      const data = await response.json();
+      
+      // 4. Update the app state with your data and PDF path
+      setCatalog(data); // Note: Change 'setCatalog' to match whatever your state setter name is (e.g., setCatalogData)
+      setPdfUrl(`/sale/${id}.pdf`);
+      setLoading(false);
+
+    } catch (err) {
+      console.error("Error loading catalog:", err);
+      setError(err.message);
+      setLoading(false);
+    }
+  }
+
+  loadCatalog();
+}, []);
 
   const loadCatalogData = async (id) => {
     try {
