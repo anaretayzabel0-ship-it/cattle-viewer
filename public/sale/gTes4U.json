@@ -1,0 +1,16 @@
+{
+  "lots": [
+    {
+      "id": "lot1",
+      "label": "Lot 1 - Sample Bull",
+      "page": 1,
+      "coordinates": {
+        "x": 50,
+        "y": 100,
+        "width": 300,
+        "height": 150
+      },
+      "media": []
+    }
+  ]
+}
